@@ -9,6 +9,7 @@ bool isPrime(const size_t);
 void displayPrimes(size_t, size_t);
 bool fastPrimeTest(const size_t);
 void updatePrimes(const unsigned int, const unsigned int);
+inline unsigned int new_last_prime(const size_t);
 
 vector<unsigned int> primes{2, 3};
 
@@ -19,8 +20,8 @@ int main() {
 
   for (;;) {
     do {
-      cout << "   1. Test Tuncfion: isPrime" << endl;
-      cout << "   2. Test Tuncfion: displayPrimes" << endl;
+      cout << "   1. Test Function: isPrime" << endl;
+      cout << "   2. Test Function: displayPrimes" << endl;
       cout << "   Choose One (q to quit): ";
       cin >> choice;
       cout << "\n\n";
@@ -84,16 +85,18 @@ int main() {
   return 0;
 }
 
+inline unsigned int new_last_prime(const size_t num) {
+  size_t num_sqrt{static_cast<size_t>(sqrt(static_cast<double>(num)))};
+  size_t m{min(num_sqrt, static_cast<size_t>(UINT_MAX))};
+  return static_cast<unsigned int>(m);
+}
 
 bool isPrime(const size_t num) {
   //return '1' if the number 'n' is a prime, '0' otherwise
   if (2 == num) return true;
   if ( !(num % 2) || num < 2 ) return false;
   const unsigned int lastPrime{ ::primes[::primes.size()-1] };
-
-  size_t num_sqrt{static_cast<size_t>(sqrt(static_cast<double>(num)))};
-  size_t m{min(num_sqrt, static_cast<size_t>(UINT_MAX))};
-  const unsigned int target{static_cast<unsigned int>(m)};
+  const unsigned int target{new_last_prime(num)};
 
   if (lastPrime < target) updatePrimes(lastPrime, target);
   return fastPrimeTest(num);
@@ -102,9 +105,8 @@ bool isPrime(const size_t num) {
 void displayPrimes(size_t num, size_t k) {
   //print out the last 'k' prime numbers below the number 'num'
   const unsigned int lastPrime{ ::primes[::primes.size() - 1] };
-  size_t num_sqrt{static_cast<size_t>(sqrt(static_cast<double>(num)))};
-  size_t m{min(num_sqrt, static_cast<size_t>(UINT_MAX))};
-  const unsigned int target{static_cast<unsigned int>(m)};
+  const unsigned int target{new_last_prime(num)};
+  
   if (lastPrime < target) updatePrimes(lastPrime, target);
 
   if ( !(num % 2) ) --num;
@@ -116,10 +118,9 @@ void displayPrimes(size_t num, size_t k) {
 }
 
 bool fastPrimeTest(const size_t num) {
-  size_t num_sqrt{static_cast<size_t>(sqrt(static_cast<double>(num)))};
-  size_t m{min(num_sqrt, static_cast<size_t>(UINT_MAX))};
-  const unsigned int target{static_cast<unsigned int>(m)};
+  const unsigned int target{new_last_prime(num)};
   const unsigned int end{ static_cast<unsigned int>(::primes.size()-1) };
+  
   for (unsigned int i{1}; ; ++i) {
     if (::primes[i] > target || i > end) break;
     if (!( num % ::primes[i] )) return 0;
@@ -139,7 +140,7 @@ void updatePrimes(const unsigned int last_p, const unsigned int tar) {
       //}    //weird: add{}  45.787s    no{} 6.558s
     }
     if (isPrime) ::primes.push_back(n);
-    isPrime = 1;
+    else isPrime = 1;
   }
 }
 

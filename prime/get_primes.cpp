@@ -10,6 +10,7 @@ void displayPrimes(size_t, size_t);
 bool fastPrimeTest(const size_t);
 void updatePrimes(const unsigned int, const unsigned int);
 inline unsigned int new_last_prime(const size_t);
+void printPrimes();
 
 vector<unsigned int> primes{2, 3};
 
@@ -22,6 +23,7 @@ int main() {
     do {
       cout << "   1. Test Function: isPrime" << endl;
       cout << "   2. Test Function: displayPrimes" << endl;
+      cout << "   3. Test Function: printPrimes" << endl;
       cout << "   Choose One (q to quit): ";
       cin >> choice;
       cout << "\n\n";
@@ -73,6 +75,10 @@ int main() {
         timer = clock();
         cout << "displayPrimes(" << num << ", " << item << "): ";
         displayPrimes(num, item);
+        break;
+      case '3':
+        cout << endl;
+        printPrimes();
         break;
 
       default:
@@ -130,21 +136,21 @@ bool fastPrimeTest(const size_t num) {
 
 void updatePrimes(const unsigned int last_p, const unsigned int tar) {
   //update the list of primes
-  bool isPrime{1};
-  for (unsigned int n{last_p + 2}; n < tar; n += 2) {
+  for (unsigned int n{last_p + 2}; n <= tar; n += 2) {
     const unsigned int test{ static_cast<unsigned int>(sqrt(static_cast<double>(n))) };
     for (unsigned int i{1}; ::primes[i] <= test; ++i) {
-      if (!( n % ::primes[i] )) //{
-        isPrime = 0; 
-        break;
-      //}    //weird: add{}  45.787s    no{} 6.558s
+      if (!( n % ::primes[i] )) goto endloop;
     }
-    if (isPrime) ::primes.push_back(n);
-    else isPrime = 1;
+    ::primes.push_back(n);
+    endloop:;
   }
 }
 
-
+void printPrimes() {
+  for (const unsigned int &prime: ::primes) {
+    cout << prime << " ";
+  }
+}
 
 /*
 

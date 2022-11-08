@@ -11,6 +11,7 @@ void displayPrimes(size_t, size_t);
 bool fastPrimeTest(const size_t);
 void updatePrimes(size_t);
 void printPrimes(size_t);
+size_t read_input(const string);
 
 vector<size_t> primes{2, 3};
 
@@ -33,17 +34,9 @@ int main() {
     
     switch(choice) {
       case '1':
-        cout << "isPrime(n): return '1' if the number 'n' is a prime, '0' otherwise \n\n";
-        for(;;) {
-          cout << "Give One Positive Integer (1 < n < 2^64-1): ";
-          cin >> num;
-          if (cin.fail()) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-          }
-          break;
-        }
+        cout << "isPrime(n): return '1' if the number 'n' is a prime; '0' otherwise \n\n";
+        num = read_input("Give a positive integer 'n': ");
+
         timer = clock();
         cout << "isPrime(" << num << "): " << isPrime(num);
         break;
@@ -52,26 +45,9 @@ int main() {
         cout << "displayPrimes(n, k): ";
         cout << "print out the last 'k' prime numbers ";
         cout << "close to but not larger than the number 'n' \n\n";
-        for(;;) {
-          cout << "Give Positive Integer n (1 < n < 2^64): ";
-          cin >> num;
-          if (cin.fail()) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-          }
-          break;
-        }
-        for(;;) {
-          cout << "Give Positive Integer k (1 < k < 2^64): ";
-          cin >> item;
-          if (cin.fail()) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-          }
-          break;
-        }
+        num = read_input("Give a positive integer 'n': ");
+        item = read_input("Give a positive integer 'k': ");
+
         timer = clock();
         cout << "displayPrimes(" << num << ", " << item << "): ";
         displayPrimes(num, item);
@@ -79,16 +55,8 @@ int main() {
       case '3':
         cout << "printPrimes(n): ";
         cout << "print out all primes under a given number 'n' \n\n";
-        for(;;) {
-          cout << "Give Positive Integer n (1 < n < 2^64): ";
-          cin >> num;
-          if (cin.fail()) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-          }
-          break;
-        }
+        num = read_input("Give a positive integer 'n': ");
+
         timer = clock();
         cout << endl;
         printPrimes(num);
@@ -164,10 +132,26 @@ void printPrimes(size_t num) {
   for (const unsigned int &prime: ::primes) {
     if (num < prime) break;
     cout << "(" << count << ") " << prime << "\t";
-    if ( count % 10 == 0 ) cout << endl;
+    if ( count % 5 == 0 ) cout << endl;
     ++count;
   }
 }
+
+size_t read_input(const string prompt) {
+  size_t num;
+  for(;;) {
+    cout << prompt;
+    cin >> num;
+    if (cin.fail()) {
+      cin.clear();
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');
+      continue;
+    }
+    break;
+  }
+  return num;
+}
+
 
 /*
 

@@ -78,6 +78,7 @@ int main() {
         break;
       case '3':
         cout << "printPrimes(n): ";
+        cout << "print out all primes under a given number 'n' \n\n";
         for(;;) {
           cout << "Give Positive Integer n (1 < n < 2^64): ";
           cin >> num;
@@ -108,7 +109,7 @@ bool isPrime(const size_t num) {
   if (2 == num || 3 == num) return true;
   if ( !(num % 2) || !(num % 3) || num < 2 ) return false;
 
-  for (unsigned long i{5}; UINT_MAX >= i && num >= i * i; i += 6) {
+  for (size_t i{5}; UINT_MAX >= i && num >= i * i; i += 6) {
     if ( num % i == 0 || num % (i+2) == 0) {
       return false; 
     }

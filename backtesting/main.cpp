@@ -72,11 +72,10 @@ class Strategy {
 
       if (timeTick == 0) { // initialize for signal function to iterate
         count = -1;
+        ave_gain = 0;
+        ave_loss = 0;
       }
-      if (count == timeTick) { // call RSI without modifying
-        return rsi;
-      }
-      else if (count + 1 == timeTick) { // make sure to iterate with time tick one by one
+      if (count + 1 == timeTick) { // make sure to iterate with time tick one by one
         // insufficient periods to calculate RSI
         if (timeTick < rsi_period) {
           cout << timeTick << " is out of range ";
@@ -105,6 +104,14 @@ class Strategy {
         rsi = 100.0 - 100.0 / (1 + ave_gain / ave_loss);
         ++count;
         return rsi;
+      }
+      else if (count == timeTick) { // call RSI without modifying
+        return rsi;
+      }
+      else {
+        // NOt iterate with time tick one by one
+        cout << "NOt iterate with time tick one by one";
+        return -10;
       }
 
     }
@@ -189,6 +196,8 @@ int main() {
   for (int i{0}; i < RSI.get_data_size(); ++i){
     RSI.update_portfolio(i);
   }
+  
+
   
 
   // Strategy RSI2(100000, 30, 70, 50, 14);

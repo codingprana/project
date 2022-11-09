@@ -41,6 +41,7 @@ class Strategy {
           close_price.push_back(stod(token));
         }
         catch (invalid_argument) {
+          cout << "Invalid argument";
         }
       }
     }
@@ -53,8 +54,25 @@ class Strategy {
       }
     }
     
-    double calculate_rsi() {
+    int get_data_size() const {
+      return close_price.size();
+    }
 
+    double calculate_rsi(unsigned int period = 14, unsigned int n = 0) const {
+      double rsi{0}, sum_gain{0}, sum_loss{0};
+
+      if (n + period > close_price.size()) {
+        cout << n << " is out of range";
+        return -1001;
+      }
+
+      for (unsigned int i{n}; i < period + n; ++i) {
+        double dif{close_price[i+1] - close_price[i]};
+        sum_gain += ( dif > 0 ? dif : 0);
+        sum_loss += ( dif < 0 ? -dif : 0);
+      }
+
+      return 100.0 - 100.0 / (1.0 + sum_gain / sum_loss);
     }
 
 
@@ -66,7 +84,11 @@ int main() {
 
   Strategy RSI(100000);
   RSI.read_data("BTC_data_daily.csv");
-  RSI.print_close_price();
+  //RSI.print_close_price();
+  for (int i{0}; i < RSI.get_data_size(); ++i) {
+    cout << i << ": " << RSI.calculate_rsi(14, i) << endl;
+  }
+  cout << RSI.calculate_rsi(14, 1);
 
   Strategy RSI2(100000);
   //RSI2.read_data("BTC_data_10-min.csv");

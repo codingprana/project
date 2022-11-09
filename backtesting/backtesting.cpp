@@ -142,24 +142,6 @@ class Strategy {
       principal -= (curr_position - pos)  * close_price[timeTick];
     }
 
-
-    void buy(int timeTick){
-      int pos{curr_position}; // temp position
-      if (curr_position == 0) {curr_position = principal / close_price[timeTick];}
-      else if (curr_position < 0) {stop(timeTick); curr_position = principal / close_price[timeTick];}
-      //it shud not be called if curr pos > 0
-      principal -= (curr_position - pos) * close_price[timeTick];
-    }
-    
-    void sell(int timeTick){
-      int pos{curr_position}; // temp position
-      if (curr_position == 0) {curr_position = -1 * principal / close_price[timeTick];}
-      else if (curr_position > 0) {stop(timeTick); curr_position = -1 * principal / close_price[timeTick];}
-      //it shud not be called if curr pos < 0
-      principal -= (curr_position - pos)  * close_price[timeTick];
-    }
-
-
     Signal rsi_signal(double rsi){
       //base base when rsi is out of range (not enough data point)
       if (rsi < 0) {return Signal::HOLD;}
@@ -222,7 +204,7 @@ ostream& operator<<(ostream& os, const Strategy::Signal &s){
 
 
 int main() {
-  Strategy RSI(100000, 29, 71, 40, 60, 7);
+  Strategy RSI(100000, 30, 70, 40, 60, 7);
   RSI.read_data("BTC_data_daily.csv");
   for (int i{0}; i < RSI.get_data_size(); ++i){
     RSI.update_portfolio(i);

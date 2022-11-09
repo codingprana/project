@@ -112,8 +112,8 @@ class Strategy {
         return rsi;
       }
       else {
-        // NOt iterate with time tick one by one
-        cout << "Not iterate with time tick one by one";
+        // Not iterate with time tick one by one
+        //cout << "Not iterate with time tick one by one";
         return -10;
       }
 
@@ -125,6 +125,23 @@ class Strategy {
       curr_position = 0;
       principal -= (curr_position - pos) * close_price[timeTick];
     }
+
+    void buy(int timeTick){
+      int pos{curr_position}; // temp position
+      if (curr_position == 0) {curr_position = principal / close_price[timeTick];}
+      else if (curr_position < 0) {stop(timeTick); curr_position = principal / close_price[timeTick];}
+      //it shud not be called if curr pos > 0
+      principal -= (curr_position - pos) * close_price[timeTick];
+    }
+    
+    void sell(int timeTick){
+      int pos{curr_position}; // temp position
+      if (curr_position == 0) {curr_position = -1 * principal / close_price[timeTick];}
+      else if (curr_position > 0) {stop(timeTick); curr_position = -1 * principal / close_price[timeTick];}
+      //it shud not be called if curr pos < 0
+      principal -= (curr_position - pos)  * close_price[timeTick];
+    }
+
 
     void buy(int timeTick){
       int pos{curr_position}; // temp position

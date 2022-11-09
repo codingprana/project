@@ -63,7 +63,7 @@ class Strategy {
 
       if (n + period > close_price.size()) {
         cout << n << " is out of range";
-        return -1001;
+        return -1;
       }
 
       for (unsigned int i{n}; i < period + n; ++i) {
@@ -84,11 +84,11 @@ int main() {
 
   Strategy RSI(100000);
   RSI.read_data("BTC_data_daily.csv");
-  //RSI.print_close_price();
+  RSI.print_close_price();
+  cout << endl;
   for (int i{0}; i < RSI.get_data_size(); ++i) {
     cout << i << ": " << RSI.calculate_rsi(14, i) << endl;
   }
-  cout << RSI.calculate_rsi(14, 1);
 
   Strategy RSI2(100000);
   //RSI2.read_data("BTC_data_10-min.csv");

@@ -13,6 +13,7 @@ class Strategy {
     double principle;
     double curr_profit{0};
     int curr_position{0};
+    unsigned int rsi_period{14};
     vector<double> close_price;
     vector<double> daily_profit;
 
@@ -58,21 +59,34 @@ class Strategy {
       return close_price.size();
     }
 
-    double calculate_rsi(unsigned int period = 14, unsigned int n = 0) const {
-      double rsi{0}, sum_gain{0}, sum_loss{0};
+    double calculate_rsi(unsigned int timeTick = 0) {
+      static double rsi{0}, ave_gain{0}, ave_loss{0};
 
-      if (n + period > close_price.size()) {
-        cout << n << " is out of range";
+      if (timeTick < rsi_period) {
+        cout << timeTick << " is out of range ";
         return -1;
       }
 
-      for (unsigned int i{n}; i < period + n; ++i) {
-        double dif{close_price[i+1] - close_price[i]};
-        sum_gain += ( dif > 0 ? dif : 0);
-        sum_loss += ( dif < 0 ? -dif : 0);
+      // first RSI
+      if (timeTick == rsi_period) {
+        for (unsigned int i{0}; i < rsi_period; ++i) {
+          double dif{close_price[i+1] - close_price[i]};
+          ave_gain += ( dif > 0 ? dif : 0);
+          ave_loss += ( dif < 0 ? -dif : 0);
+        }
+        ave_gain /= rsi_period;
+        ave_loss /= rsi_period;
+        rsi = 100.0 - 100.0 / (1 + ave_gain / ave_loss);
+        return rsi;
       }
 
-      return 100.0 - 100.0 / (1.0 + sum_gain / sum_loss);
+      // RSI other than first
+      double dif{close_price[timeTick] - close_price[timeTick-1]};
+      ave_gain = (ave_gain * (rsi_period - 1) + ( dif > 0 ? dif : 0) ) / rsi_period;
+      ave_loss = (ave_loss * (rsi_period - 1) + ( dif < 0 ? -dif : 0) ) / rsi_period;
+      rsi = 100.0 - 100.0 / (1 + ave_gain / ave_loss);
+
+      return rsi;
     }
 
 
@@ -87,7 +101,7 @@ int main() {
   RSI.print_close_price();
   cout << endl;
   for (int i{0}; i < RSI.get_data_size(); ++i) {
-    cout << i << ": " << RSI.calculate_rsi(14, i) << endl;
+    cout << i << ": " << RSI.calculate_rsi(i) << endl;
   }
 
   Strategy RSI2(100000);

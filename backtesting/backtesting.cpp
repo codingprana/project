@@ -75,10 +75,11 @@ class Strategy {
 
       if (timeTick == 0) { // initialize for signal function to iterate
         count = -1;
-        ave_gain = 0;
-        ave_loss = 0;
       }
-      if (count + 1 == timeTick) { // make sure to iterate with time tick one by one
+      if (count == timeTick) { // call RSI without modifying
+        return rsi;
+      }
+      else if (count + 1 == timeTick) { // make sure to iterate with time tick one by one
         // insufficient periods to calculate RSI
         if (timeTick < rsi_period) {
           // cout << timeTick << " is out of range ";
@@ -108,14 +109,6 @@ class Strategy {
         ++count;
         return rsi;
       }
-      else if (count == timeTick) { // call RSI without modifying
-        return rsi;
-      }
-      else {
-        // Not iterate with time tick one by one
-        //cout << "Not iterate with time tick one by one";
-        return -10;
-      }
 
     }
     
@@ -123,24 +116,25 @@ class Strategy {
     void stop(int timeTick){
       int pos{curr_position}; // temp position
       curr_position = 0;
-      principal -= (curr_position - pos) * close_price[timeTick];
+      principal -= (curr_position - pos)  * close_price[timeTick];
     }
 
     void buy(int timeTick){
       int pos{curr_position}; // temp position
-      if (curr_position == 0) {curr_position = principal / close_price[timeTick];}
-      else if (curr_position < 0) {stop(timeTick); curr_position = principal / close_price[timeTick];}
+      if (curr_position == 0) {curr_position = max(0.0, principal) / close_price[timeTick];}
+      else if (curr_position < 0) {stop(timeTick); curr_position = max(0.0, principal) / close_price[timeTick];}
       //it shud not be called if curr pos > 0
       principal -= (curr_position - pos) * close_price[timeTick];
     }
     
     void sell(int timeTick){
       int pos{curr_position}; // temp position
-      if (curr_position == 0) {curr_position = -1 * principal / close_price[timeTick];}
-      else if (curr_position > 0) {stop(timeTick); curr_position = -1 * principal / close_price[timeTick];}
+      if (curr_position == 0) {curr_position = min(0.0, -principal) / close_price[timeTick];}
+      else if (curr_position > 0) {stop(timeTick); curr_position = min(0.0, -principal) / close_price[timeTick];}
       //it shud not be called if curr pos < 0
       principal -= (curr_position - pos)  * close_price[timeTick];
     }
+
 
     Signal rsi_signal(double rsi){
       //base base when rsi is out of range (not enough data point)
@@ -188,6 +182,7 @@ class Strategy {
       double newPortfolioValue{principal + curr_position * close_price[timeTick]};
       daily_profit.push_back(newPortfolioValue - tempPortfolioValue);
       curr_profit += daily_profit[timeTick];
+      //just some debug print
       cout << timeTick << "\t" << close_price[timeTick] << "\t" << curr_rsi << "\t" << signal << "\t"; 
       cout << principal << "\t" << curr_position << "\t" << daily_profit[timeTick] << "\t" << curr_profit << endl;
     }
@@ -204,30 +199,24 @@ ostream& operator<<(ostream& os, const Strategy::Signal &s){
 
 
 int main() {
-  Strategy RSI(100000, 30, 70, 40, 60, 7);
+  Strategy RSI(100000, 25, 75, 40, 60, 14);
   RSI.read_data("BTC_data_daily.csv");
   for (int i{0}; i < RSI.get_data_size(); ++i){
     RSI.update_portfolio(i);
   }
   
 
-  // Strategy RSI2(100000, 25, 75, 40, 60, 14);
-  // RSI2.read_data("BTC_data_10-min.csv");
-  // for (int i{0}; i < RSI2.get_data_size(); ++i){
-  //   RSI2.update_portfolio(i);
-  // }
+  // Strategy RSI2(1000000, 30, 70, 50, 14);
+  // //RSI2.read_data("BTC_data_10-min.csv");
+  // //RSI2.print_close_price();
 
-  // Strategy RSI3(100000, 25, 75, 40, 60, 14);
-  // RSI3.read_data("BTC_data_5-min.csv");
-  // for (int i{0}; i < RSI3.get_data_size(); ++i){
-  //   RSI3.update_portfolio(i);
-  // }
+  // Strategy RSI3(1000000, 30, 70, 50, 14);
+  // //RSI3.read_data("BTC_data_5-min.csv");
+  // //RSI3.print_close_price();
 
-  // Strategy RSI4(100000, 25, 75, 40, 60, 14);
-  // RSI4.read_data("BTC_data_1-min.csv");
-  // for (int i{0}; i < 1000; ++i){
-  //   RSI4.update_portfolio(i);
-  // }
+  // Strategy RSI4(1000000, 30, 70, 50, 14);
+  // //RSI4.read_data("BTC_data_1-min.csv");
+  // //RSI4.print_close_price();
 
 
   return 0;

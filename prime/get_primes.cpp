@@ -75,9 +75,19 @@ int main() {
 bool isPrime(const size_t num) {
   //return '1' if the number 'n' is a prime, '0' otherwise
   if (2 == num || 3 == num) return true;
-  if ( !(num % 2) || !(num % 3) || num < 2 ) return false;
 
-  for (size_t i{5}; UINT_MAX >= i && num >= i * i; i += 6) {
+  // Every integer N (> 3) is NOT a prime if:
+  // (1) N % 6 = 0 (fully divided by 2, 3)
+  // (2) N % 6 = 2, 4 (wholely divided by 2)
+  // (3) N % 6 = 3 (wholely divided by 3)
+  if ( !(num % 2) || !(num % 3) || num < 2 ) {
+    return false;
+  }
+
+  // Test N if:
+  // (4) N % 6 = 5, N = 5 + 6k
+  // (5) N % 6 = 1, N = 1 + 6(k+1)
+  for (size_t i{5}; i <= UINT_MAX && i * i <= num; i += 6) {
     if ( num % i == 0 || num % (i+2) == 0) {
       return false; 
     }

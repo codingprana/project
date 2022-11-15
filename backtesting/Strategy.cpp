@@ -12,21 +12,21 @@
 using namespace std;
 
 //enum class Signal{HOLD, BUY, SELL};
-friend ostream& operator<<(ostream& os, const Signal &s);
+//friend ostream& operator<<(ostream& os, const Signal &s);
 
 //constructor
 Strategy::Strategy(double prcpl, double buy, double sell, 
                    double buyStop, double sellStop, unsigned int period) 
-    : principal(prcpl)
+    : principal{prcpl}
     , buySign{buy}
     , sellSign{sell}
     , buyStopSign{buyStop}
-    , sellStopSign(sellStop)
+    , sellStopSign{sellStop}
     , rsi_period{period} 
 {}
 
 void Strategy::read_data(string file_name) {
-  ifstream data(file_name, ios::in);
+  ifstream data("/Users/garrett/Documents/GitHub/project/backtesting/" + file_name, ios::in);
   if (!data) {
     cerr << "File could not be opened" << endl;
     exit(EXIT_FAILURE);
@@ -59,7 +59,7 @@ void Strategy::print_close_price() const {
 }
 
 int Strategy::get_data_size() const {
-  return close_price.size();
+  return this->close_price.size();
 }
 
 double Strategy::calculate_rsi(unsigned int timeTick = 0) const {
@@ -181,14 +181,14 @@ void Strategy::update_portfolio(int timeTick) {
   double newPortfolioValue{principal + curr_position * close_price[timeTick]};
   daily_profit.push_back(newPortfolioValue - tempPortfolioValue);
   curr_profit += daily_profit[timeTick];
-  cout << timeTick << "\t" << close_price[timeTick] << "\t" << curr_rsi << "\t" << signal << "\t"; 
+  cout << timeTick << "\t" << close_price[timeTick] << "\t" << curr_rsi << "\t"; 
   cout << principal << "\t" << curr_position << "\t" << daily_profit[timeTick] << "\t" << curr_profit << endl;
 }
 
-std::ostream& operator<<(std::ostream& os, const Strategy::Signal &s){
-  if (s == Strategy::Signal::BUY){os << "BUY";}
-  else if (s == Strategy::Signal::SELL){os << "SELL";}
-  else if (s == Strategy::Signal::HOLD){os << "HOLD";}
-  else{os << "This should never happens..";}
-  return os;
-}
+// std::ostream& operator<<(std::ostream& os, const Strategy::Signal &s){
+//   if (s == Strategy::Signal::BUY){os << "BUY";}
+//   else if (s == Strategy::Signal::SELL){os << "SELL";}
+//   else if (s == Strategy::Signal::HOLD){os << "HOLD";}
+//   else{os << "This should never happens..";}
+//   return os;
+// }

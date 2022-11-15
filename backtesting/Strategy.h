@@ -12,7 +12,7 @@ class Strategy {
     double principal{0}, buySign{0}, sellSign{0}, buyStopSign{0}, sellStopSign{0};
     double curr_profit{0};
     int curr_position{0}; //declared int for pursose as we only want whole number
-    unsigned int rsi_period{0};
+    unsigned int rsi_period{14};
     std::vector<double> close_price;
     std::vector<double> daily_profit;
 

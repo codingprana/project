@@ -5,7 +5,6 @@
 using namespace std;
 
 
-
 int main() {
   Strategy RSI(100000, 30, 70, 40, 60, 7);
   RSI.read_data("BTC_data_daily.csv");

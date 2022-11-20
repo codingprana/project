@@ -59,7 +59,7 @@ void Strategy::print_close_price() const {
 }
 
 int Strategy::get_data_size() const {
-  return this->close_price.size();
+  return close_price.size();
 }
 
 double Strategy::calculate_rsi(unsigned int timeTick = 0) const {
@@ -72,9 +72,9 @@ double Strategy::calculate_rsi(unsigned int timeTick = 0) const {
     ave_loss = 0;
   }
   if (count + 1 == timeTick) { // make sure to iterate with time tick one by one
+    
     // insufficient periods to calculate RSI
     if (timeTick < rsi_period) {
-      // cout << timeTick << " is out of range ";
       ++count;
       return -1;
     }
@@ -101,14 +101,8 @@ double Strategy::calculate_rsi(unsigned int timeTick = 0) const {
     ++count;
     return rsi;
   }
-  else if (count == timeTick) { // call RSI without modifying
-    return rsi;
-  }
-  else {
-    // Not iterate with time tick one by one
-    //cout << "Not iterate with time tick one by one";
-    return -10;
-  }
+  else if (count == timeTick) return rsi; // call RSI without modifying
+  else return -10; // Not iterate with time tick one by one
 
 }
 
@@ -116,24 +110,25 @@ double Strategy::calculate_rsi(unsigned int timeTick = 0) const {
 void Strategy::stop(int timeTick) {
   int pos{curr_position}; // temp position
   curr_position = 0;
-  principal -= (curr_position - pos) * close_price[timeTick];
+  principal -= (curr_position - pos)  * close_price[timeTick];
 }
 
 void Strategy::buy(int timeTick) {
   int pos{curr_position}; // temp position
-  if (curr_position == 0) {curr_position = principal / close_price[timeTick];}
-  else if (curr_position < 0) {Strategy::stop(timeTick); curr_position = principal / close_price[timeTick];}
+  if (curr_position == 0) {curr_position = max(0.0, principal) / close_price[timeTick];}
+  else if (curr_position < 0) {stop(timeTick); curr_position = max(0.0, principal) / close_price[timeTick];}
   //it shud not be called if curr pos > 0
   principal -= (curr_position - pos) * close_price[timeTick];
 }
 
 void Strategy::sell(int timeTick) {
   int pos{curr_position}; // temp position
-  if (curr_position == 0) {curr_position = -1 * principal / close_price[timeTick];}
-  else if (curr_position > 0) {Strategy::stop(timeTick); curr_position = -1 * principal / close_price[timeTick];}
+  if (curr_position == 0) {curr_position = min(0.0, -principal) / close_price[timeTick];}
+  else if (curr_position > 0) {stop(timeTick); curr_position = min(0.0, -principal) / close_price[timeTick];}
   //it shud not be called if curr pos < 0
   principal -= (curr_position - pos)  * close_price[timeTick];
 }
+
 
 Strategy::Signal Strategy::rsi_signal(double rsi) const {
   //base base when rsi is out of range (not enough data point)
@@ -181,14 +176,7 @@ void Strategy::update_portfolio(int timeTick) {
   double newPortfolioValue{principal + curr_position * close_price[timeTick]};
   daily_profit.push_back(newPortfolioValue - tempPortfolioValue);
   curr_profit += daily_profit[timeTick];
-  cout << timeTick << "\t" << close_price[timeTick] << "\t" << curr_rsi << "\t"; 
+  //just some debug print
+  cout << timeTick << "\t" << close_price[timeTick] << "\t" << curr_rsi << "\t" << signal << "\t"; 
   cout << principal << "\t" << curr_position << "\t" << daily_profit[timeTick] << "\t" << curr_profit << endl;
 }
-
-// std::ostream& operator<<(std::ostream& os, const Strategy::Signal &s){
-//   if (s == Strategy::Signal::BUY){os << "BUY";}
-//   else if (s == Strategy::Signal::SELL){os << "SELL";}
-//   else if (s == Strategy::Signal::HOLD){os << "HOLD";}
-//   else{os << "This should never happens..";}
-//   return os;
-// }

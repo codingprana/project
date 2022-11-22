@@ -48,8 +48,9 @@ int main() {
         num = read_input("Give a positive integer 'n': ");
         item = read_input("Give a positive integer 'k': ");
 
-        timer = clock();
+        
         cout << "displayPrimes(" << num << ", " << item << "): ";
+        timer = clock();
         displayPrimes(num, item);
         break;
       case '3':
@@ -57,16 +58,16 @@ int main() {
         cout << "print out all primes under a given number 'n' \n\n";
         num = read_input("Give a positive integer 'n': ");
 
-        timer = clock();
         cout << endl;
+        timer = clock();
         printPrimes(num);
         break;
 
       default:
         break;
     }
-    cout << "\n\n";
     timer = clock() - timer;
+    cout << "\n\n";
     cout << "Run Time: " << (float)timer/CLOCKS_PER_SEC << " sec \n\n\n";
   }
   return 0;
@@ -75,20 +76,10 @@ int main() {
 bool isPrime(const size_t num) {
   //return '1' if the number 'n' is a prime, '0' otherwise
   if (2 == num || 3 == num) return true;
+  if ( !(1 & num) || !(num % 3) || num < 2 ) return false;
 
-  // Every integer N (> 3) is NOT a prime if:
-  // (1) N % 6 = 0 (fully divided by 2, 3)
-  // (2) N % 6 = 2, 4 (wholely divided by 2)
-  // (3) N % 6 = 3 (wholely divided by 3)
-  if ( !(num % 2) || !(num % 3) || num < 2 ) {
-    return false;
-  }
-
-  // Test N if:
-  // (4) N % 6 = 5, N = 5 + 6k
-  // (5) N % 6 = 1, N = 1 + 6(k+1)
-  for (size_t i{5}; i <= UINT_MAX && i * i <= num; i += 6) {
-    if ( num % i == 0 || num % (i+2) == 0) {
+  for (size_t i{5}; UINT_MAX >= i && num >= i * i; i += 6) {
+    if (  0 == num % i || 0 == num % (i+2) ) {
       return false; 
     }
   }
@@ -98,15 +89,15 @@ bool isPrime(const size_t num) {
 void displayPrimes(size_t num, size_t k) {
   //print out the last 'k' prime numbers below the number 'num'
   cout << endl;
-  if (num < 2) return;
-  if (num % 2 == 0) --num;
-  for (size_t n{num}, count{1}; n >= 3; n -= 2) {
+  if (2 > num) return;
+  if (!(num & 1)) --num; // for even number
+  for (size_t n{num}, count{1}; 3 <= n; n -= 2) {
     if (!k) return;
     if (isPrime(n)) {
       cout << n << "\t"; 
       --k;
       ++count;
-      if (count >= 6) {
+      if (6 <= count) {
         cout << endl;
         count = 1;
       }  
@@ -118,7 +109,7 @@ void displayPrimes(size_t num, size_t k) {
 bool fastPrimeTest(const size_t num) {
   const unsigned int size{ static_cast<unsigned int>(::primes.size()) };
   for (unsigned int i{1}; num >= ::primes[i] * ::primes[i] && size > i; ++i) {
-    if ( num % ::primes[i] == 0) return false;
+    if ( !(num % ::primes[i]) ) return false;
   }
   return true;
 }
@@ -129,7 +120,7 @@ void updatePrimes(size_t num) {
   for (size_t n{lastPrime + 2}; n <= num; n += 2) {
     const unsigned int test{ static_cast<unsigned int>(sqrt(static_cast<double>(n))) };
     for (unsigned int i{1}; ::primes[i] <= test; ++i) {
-      if (n % ::primes[i] == 0) goto endloop;
+      if (!(n % ::primes[i])) goto endloop;
     }
     ::primes.push_back(n);
     endloop: ;
@@ -142,7 +133,7 @@ void printPrimes(size_t num) {
   for (const unsigned int &prime: ::primes) {
     if (num < prime) break;
     cout << "(" << count << ") " << prime << "\t";
-    if ( count % 5 == 0 ) cout << endl;
+    if ( !(count % 5) ) cout << endl;
     ++count;
   }
 }
@@ -193,7 +184,7 @@ displayPrimes(9999999999999999, 10):
 9999999999999937 9999999999999917 9999999999999887 9999999999999851 9999999999999817 
 9999999999999809 9999999999999671 9999999999999643 9999999999999641 9999999999999631 
 
-Run Time: 3.37867 sec 
+Run Time: 3.54878 sec 
 
 
    1. Test Function: isPrime

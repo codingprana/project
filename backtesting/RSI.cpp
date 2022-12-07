@@ -79,7 +79,7 @@ RSI::Signal RSI::signal(double rsi) const {
   }
 }
 
-void RSI::update_portfolio(int timeTick, bool show) {
+void RSI::update_portfolio(int timeTick, bool show = false) {
   // double curr_principal = principal;
   double tempPortfolioValue{principal + curr_position * close_price[max(0, timeTick - 1)]};
   double curr_rsi = calculate_rsi(timeTick);
@@ -103,10 +103,28 @@ void RSI::update_portfolio(int timeTick, bool show) {
   daily_profit.push_back(newPortfolioValue - tempPortfolioValue);
   curr_profit += daily_profit[timeTick];
   
-  if (show) display(timeTick, curr_rsi);
-  //just some debug print
-//   cout << timeTick << "\t" << close_price[timeTick] << "\t" << curr_rsi << "\t" << signal << "\t"; 
-//   cout << principal << "\t" << curr_position << "\t" << daily_profit[timeTick] << "\t" << curr_profit << endl;
+  if (show) display(timeTick, curr_rsi, signal);
+}
+
+void RSI::display(int timeTick, double curr_rsi, Signal signal) const{
+  cout << setw(14) << timeTick << setw(14) << close_price[timeTick]
+       << setw(14) << curr_rsi << setw(14) << signal << setw(14) << principal 
+       << setw(14) << curr_position << setw(14) << daily_profit[timeTick] 
+       << setw(14) << curr_profit << endl;
+}
+
+void RSI::print_title(){
+  cout << setw(14) << "Time" << setw(14) << "Close" << setw(14) << "RSI"
+       << setw(14) << "Signal" << setw(14) << "Principal"
+       << setw(14) << "Position" << setw(14) << "Curr. Profit"
+       << setw(14) << "Total Profit" << endl;
+}
+
+void RSI::calculate_portfolio(bool show = false){
+  if (show) print_title();
+  for(unsigned long timeTick{0}; timeTick < close_price.size(); ++timeTick){
+    update_portfolio(timeTick, show);
+  }
 }
 
 void RSI::set_params (double buy, double sell, double buyStop, 
@@ -121,14 +139,14 @@ void RSI::set_params (double buy, double sell, double buyStop,
   daily_profit.clear();
 }
 
-vector<double> RSI::grid_search(double prcpl = 100000, 
-                                double t = 365, double threshold = 2) {
+vector<double> RSI::grid_search(double prcpl = 100000.0, 
+                                double t = 365.0, double threshold = 2.0) {
   vector<vector<double>> v;
 
   for (int buy{20}; buy <= 40; ++buy) {
     for (int sell{60}; sell <= 80; ++sell) {
       for (int period{14}; period <= 21; ++period) {
-        set_principle(100000);
+        set_principal(prcpl);
         set_params(buy, sell, 50, 50, period);
         daily_profit.clear();
         for (int i{0}, end{this->get_data_size()}; i < end; ++i){
@@ -149,12 +167,4 @@ vector<double> RSI::grid_search(double prcpl = 100000,
   }
     sort(v.begin(), v.end(), greater());
     return v[0];
-}
-
-void RSI::display(int timeTick, double curr_rsi) const{
-  Strategy::Signal signal = RSI::signal(curr_rsi);
-  cout << setw(14) << timeTick << setw(14) << close_price[timeTick]
-       << setw(14) << curr_rsi << setw(14) << signal << setw(14) << principal 
-       << setw(14) << curr_position << setw(14) << daily_profit[timeTick] 
-       << setw(14) << curr_profit << endl;
 }

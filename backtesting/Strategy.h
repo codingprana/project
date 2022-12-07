@@ -7,6 +7,7 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
+//Abstract class
 class Strategy {
 public:
   enum class Signal{HOLD, BUY, SELL};
@@ -14,26 +15,25 @@ public:
   
   //constructor
   Strategy(std::string, double);
-  virtual ~Strategy() {};
+  virtual ~Strategy() = default;
 
   void read_data(std::string);
   void print_close_price() const;
   int get_data_size() const;
   double get_sharpe_ratio() const;
-  virtual void display() const;
 
-  //int division will truncate the decimal places and round the number down
+  //
   void stop(int);
   void buy(int);
   void sell(int);
-  virtual void signal() const;
-  virtual void update_portfolio();
+  virtual void update_portfolio(int, bool) = 0; //pure vitual
+  virtual void print_title() = 0; //pure vitual
+  virtual void calculate_portfolio(bool) = 0; //pure vitual
   void set_sharpe_ratio(double);
-  virtual void grid_search();
-  virtual void set_params();
-  void set_principle(double);
+  void set_principal(double);
   void set_curr_profit(double);
   void set_curr_position(int);
+
 
 protected:
   double principal{0};

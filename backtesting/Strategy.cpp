@@ -14,9 +14,9 @@ using namespace std;
 
 
 //constructor
-Strategy::Strategy(string file_name, double prcpl) 
-    : principal{prcpl} {
-    read_data(file_name);
+Strategy::Strategy(string file_name, double prcpl = 100000) 
+  : principal{prcpl} {
+  read_data(file_name);
 }
 
 void Strategy::read_data(string file_name) {
@@ -90,15 +90,6 @@ void Strategy::sell(int timeTick) {
   principal -= (curr_position - pos)  * close_price[timeTick];
 }
 
-void Strategy::signal() const {
-  // return signal to buy, hold, and sell
-  // depending on derived class
-}
-
-void Strategy::update_portfolio() {
-  // update portfolio depending on derived class
-}
-
 double Strategy::get_sharpe_ratio() const {
   return sharpe_ratio;
 }
@@ -117,19 +108,7 @@ void Strategy::set_sharpe_ratio(double t = 365) {
   sharpe_ratio = mean / sqrt(var) * sqrt(t);
 }
 
-void Strategy::grid_search() {
-
-};
-
-void Strategy::set_params() {
-
-};
-
-void Strategy::display() const {
-
-}
-
-void Strategy::set_principle(double prcpl)  {
+void Strategy::set_principal(double prcpl)  {
   principal = prcpl;
 }
 

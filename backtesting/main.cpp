@@ -4,9 +4,10 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <string>
 #include "Strategy.h"
 #include "RSI.h"
-
+#include "MACD.h"
 
 using namespace std;
 
@@ -14,32 +15,25 @@ ostream& operator<<(ostream& os, const Strategy::Signal &s){
   if (s == Strategy::Signal::BUY){os << "BUY";}
   else if (s == Strategy::Signal::SELL){os << "SELL";}
   else if (s == Strategy::Signal::HOLD){os << "HOLD";}
-  else{os << "This should never happens..";}
+  else{os << "This should never happen...";}
   return os;
 }
 
-
 int main() {
-  RSI RSI1("BTC_data_daily.csv", 100000, 23, 62, 50, 50, 21);
-  vector<double> v;
-  v = RSI1.grid_search(100000, 365, -0.5);
-  RSI1.set_principle(100000);
-  RSI1.set_params(v[3], v[4], 50, 50, v[2]);
-  cout << fixed << setprecision(2);
-  cout << setw(14) << "Time" << setw(14) << "Close" << setw(14) << "RSI"
-       << setw(14) << "Signal" << setw(14) << "Principal"
-       << setw(14) << "Position" << setw(14) << "Curr. Profit"
-       << setw(14) << "Total Profit" << endl;
-  for (int timeTick{0}, end{RSI1.get_data_size()}; timeTick < end; ++timeTick ) {
-    RSI1.update_portfolio(timeTick, true);
-  }
-  cout << endl;
-  cout << setw(14) << "Total Profit" << setw(14) << "Sharpe Ratio"
-       << setw(14) << "RSI Period" << setw(14) << "Buy" << setw(14) << "Sell" << endl;
-  for (const auto &parameter : v) {
-    cout << setw(14) << parameter;
-  }
-  cout << endl;
+  // RSI RSI1("BTC_data_daily.csv", 100000, 23, 62, 50, 50, 21);
+  // vector<double> v;
+  // v = RSI1.grid_search(100000, 365, -0.5);
+  // RSI1.set_principal(100000);
+  // RSI1.set_params(v[3], v[4], 50, 50, v[2]);
+  // cout << fixed << setprecision(2);
+  // RSI1.calculate_portfolio(true);
+  // cout << endl;
+  // cout << setw(14) << "Total Profit" << setw(14) << "Sharpe Ratio"
+  //      << setw(14) << "RSI Period" << setw(14) << "Buy" << setw(14) << "Sell" << endl;
+  // for (const auto &parameter : v) {
+  //   cout << setw(14) << parameter;
+  // }
+  // cout << endl;
 
 
   // RSI RSI2("BTC_data_10-min.csv", 100000, 23, 62, 50, 50, 21);
@@ -73,6 +67,20 @@ int main() {
   //   cout << parameter << "\t ";
   // }
   // cout << endl;
+  MACD MACD1("BTC_data_daily.csv", 100000, 12, 26, 9);
+  vector<double> v;
+  v = MACD1.grid_search(10, 24, 24, 36, 9, 21, 100000, 365, 0.0);
+  MACD1.set_principal(100000);
+  MACD1.reset_params(v[2], v[3], v[4]);
+  cout << fixed << setprecision(2);
+  MACD1.calculate_portfolio(true);
+  cout << endl;
+  cout << setw(14) << "Total Profit" << setw(14) << "Sharpe Ratio"
+       << setw(14) << "MACD Fast" << setw(14) << "MACD Slow" << setw(14) << "MACD Preiod" << endl;
+  for (const auto &parameter : v) {
+    cout << setw(14) << parameter;
+  }
+  cout << endl;
 
   return 0;
 }
@@ -84,5 +92,5 @@ g++ -c Strategy.cpp RSI.cpp main.cpp -std=c++20
 g++ Strategy.o RSI.o main.o -o backtest_result
 
 /Users/garrett/Documents/GitHub/project/backtesting
-
+/Users/minghimlau/Desktop/backtesting
 */

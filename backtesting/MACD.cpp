@@ -68,18 +68,18 @@ void MACD::calculate_signal_line(unsigned int timeTick = 0){
 }
 
 MACD::Signal MACD::signal(double curr_macd, double curr_signal) const {
-  // //Test strat 1
-  // //This strat is simple, buy when both line above 0 and macd line > signal line, vice versa
-  // if(curr_macd > 0 && curr_signal > 0 && curr_macd > curr_signal) {return Signal::BUY;}
-  // else if(curr_macd < 0 && curr_signal < 0 && curr_macd < curr_signal) {return Signal::SELL;}
-  // else{return Signal::HOLD;}
-
-  //Test strat 2
-  //This strat is simple, buy when macd line > signal line, vice versa freeing the >0 condition, this will trade more frequently
-  //And we actually wont stop gain or loss in this strategy
-  if(curr_macd > curr_signal) {return Signal::BUY;}
-  else if(curr_macd < curr_signal) {return Signal::SELL;}
+  //Test strat 1
+  //This strat is simple, buy when both line above 0 and macd line > signal line, vice versa
+  if(curr_macd > 0 && curr_signal > 0 && curr_macd > curr_signal) {return Signal::BUY;}
+  else if(curr_macd < 0 && curr_signal < 0 && curr_macd < curr_signal) {return Signal::SELL;}
   else{return Signal::HOLD;}
+
+  // //Test strat 2
+  // //This strat is simple, buy when macd line > signal line, vice versa freeing the >0 condition, this will trade more frequently
+  // //And we actually wont stop gain or loss in this strategy
+  // if(curr_macd > curr_signal) {return Signal::BUY;}
+  // else if(curr_macd < curr_signal) {return Signal::SELL;}
+  // else{return Signal::HOLD;}
 }
 
 void MACD::update_portfolio(int timeTick, bool show = false) {

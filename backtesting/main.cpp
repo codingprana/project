@@ -53,18 +53,23 @@ int main() {
   for (int i{0}; i < time_interval.size(); ++i){
     //RSI
     rsi_strat.read_data(time_interval[i]);
-    vector<double> rsi_params{rsi_strat.grid_search(100000, sharpe_t[i], 0.5)};
-    print_rsi_params(time_interval[i], rsi_params);
-
+    vector<double> rsi_params{rsi_strat.grid_search(100000, sharpe_t[i], -0.5)};
+    if(rsi_params.empty() == false){
+      print_rsi_params(time_interval[i], rsi_params);
+    }
+    else{cout << "No params set has positive sharpe ratio" << endl;}
 
     //MACD
     macd_strat.read_data(time_interval[i]);
-    vector<double> macd_params{macd_strat.grid_search(10, 24, 24, 36, 9, 21, 100000, sharpe_t[i], 0.5)};
+    vector<double> macd_params{macd_strat.grid_search(10, 24, 24, 36, 9, 21, 100000, sharpe_t[i], 0.0)};
     // uncomment 3 lines below to show the best portfolio simulation
     // MACD_port.set_principal(100000);
     // MACD_port.reset_params(macd_params[2], macd_params[3], macd_params[4]);
     // MACD_port.calculate_portfolio(true);
-    print_macd_params(time_interval[i], macd_params);
+    if(macd_params.empty() == false){
+      print_macd_params(time_interval[i], macd_params);
+    }
+    else{cout << "No params set has positive sharpe ratio" << endl;}
   }
 
   return 0;

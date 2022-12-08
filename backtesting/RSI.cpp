@@ -87,15 +87,15 @@ void RSI::update_portfolio(int timeTick, bool show = false) {
 
   //update position
   if (curr_position == 0){
-    if (signal == Signal::BUY){sell(timeTick);}
-    else if (signal == Signal::SELL){buy(timeTick);}
+    if (signal == Signal::BUY){buy(timeTick);}
+    else if (signal == Signal::SELL){sell(timeTick);}
   }
   else if (curr_position < 0){
-    if (signal == Signal::BUY){sell(timeTick);}
+    if (signal == Signal::BUY){buy(timeTick);}
     else if (signal == Signal::HOLD){stop(timeTick);}
   }
   else if (curr_position > 0){
-    if (signal == Signal::SELL){buy(timeTick);}
+    if (signal == Signal::SELL){sell(timeTick);}
     else if (signal == Signal::HOLD){stop(timeTick);}
   }
 

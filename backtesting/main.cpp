@@ -19,68 +19,53 @@ ostream& operator<<(ostream& os, const Strategy::Signal &s){
   return os;
 }
 
-int main() {
-  // RSI RSI1("BTC_data_daily.csv", 100000, 23, 62, 50, 50, 21);
-  // vector<double> v;
-  // v = RSI1.grid_search(100000, 365, -0.5);
-  // RSI1.set_principal(100000);
-  // RSI1.set_params(v[3], v[4], 50, 50, v[2]);
-  // cout << fixed << setprecision(2);
-  // RSI1.calculate_portfolio(true);
-  // cout << endl;
-  // cout << setw(14) << "Total Profit" << setw(14) << "Sharpe Ratio"
-  //      << setw(14) << "RSI Period" << setw(14) << "Buy" << setw(14) << "Sell" << endl;
-  // for (const auto &parameter : v) {
-  //   cout << setw(14) << parameter;
-  // }
-  // cout << endl;
-
-
-  // RSI RSI2("BTC_data_10-min.csv", 100000, 23, 62, 50, 50, 21);
-  // vector<double> v;
-  // v = RSI2.grid_search(100000, 365*24*6, -0.5);
-  // // for (int i{0}, end{RSI2.get_data_size()}; i < end; ++i ) {
-  // //   RSI2.update_portfolio(i);
-  // // }
-  // cout << "total profit\t shapre ratio\t peroid\t buy\t sell\t " << endl;
-  // for (const auto &parameter : v) {
-  //   cout << parameter << "\t ";
-  // }
-  // cout << endl;
-
-
-  // RSI RSI3("BTC_data_5-min.csv", 100000, 25, 75, 40, 60, 14);
-  // vector<double> v;
-  // v = RSI3.grid_search(100000, 365*24*12, 0);
-  // cout << "total profit\t shapre ratio\t peroid\t buy\t sell\t " << endl;
-  // for (const auto &parameter : v) {
-  //   cout << parameter << "\t ";
-  // }
-  // cout << endl;
-
-
-  // RSI RSI4("BTC_data_1-min.csv", 100000, 25, 75, 40, 60, 14);
-  // vector<double> v;
-  // v = RSI4.grid_search(100000, 365*24*60, 0);
-  // cout << "total profit\t shapre ratio\t peroid\t buy\t sell\t " << endl;
-  // for (const auto &parameter : v) {
-  //   cout << parameter << "\t ";
-  // }
-  // cout << endl;
-  MACD MACD1("BTC_data_daily.csv", 100000, 12, 26, 9);
-  vector<double> v;
-  v = MACD1.grid_search(10, 24, 24, 36, 9, 21, 100000, 365, 0.0);
-  MACD1.set_principal(100000);
-  MACD1.reset_params(v[2], v[3], v[4]);
-  cout << fixed << setprecision(2);
-  MACD1.calculate_portfolio(true);
-  cout << endl;
+//should have make this a member function
+void print_macd_params(string title, const vector<double>& vec){
+  cout << endl << title << endl;
   cout << setw(14) << "Total Profit" << setw(14) << "Sharpe Ratio"
        << setw(14) << "MACD Fast" << setw(14) << "MACD Slow" << setw(14) << "MACD Preiod" << endl;
-  for (const auto &parameter : v) {
+  for (const auto &parameter : vec) {
     cout << setw(14) << parameter;
   }
   cout << endl;
+}
+
+void print_rsi_params(string title, const vector<double>& vec){
+  cout << endl << title << endl;
+  cout << setw(14) << "Total Profit" << setw(14) << "Sharpe Ratio"
+       << setw(14) << "RSI period" << setw(14) << "RSI buy" << setw(14) << "RSI sell" << endl;
+  for (const auto &parameter : vec) {
+    cout << setw(14) << parameter;
+  }
+  cout << endl;
+}
+
+int main() {
+  //driver program maybe make a better interface if we have more time
+  cout << fixed << setprecision(2);
+
+  //Stupid way I guess
+  vector<string> time_interval{"BTC_data_daily.csv", "BTC_data_10-min.csv", "BTC_data_5-min.csv", "BTC_data_1-min.csv"};
+  vector<double> sharpe_t{365.0, 52560.0, 105120.0, 525600.0}; // its basically annualization factor t
+  RSI rsi_strat("BTC_data_daily.csv", 100000, 30, 70, 50, 50, 14);
+  MACD macd_strat("BTC_data_daily.csv", 100000, 12, 26, 9);
+
+  for (int i{0}; i < time_interval.size(); ++i){
+    //RSI
+    rsi_strat.read_data(time_interval[i]);
+    vector<double> rsi_params{rsi_strat.grid_search(100000, sharpe_t[i], 0.5)};
+    print_rsi_params(time_interval[i], rsi_params);
+
+
+    //MACD
+    macd_strat.read_data(time_interval[i]);
+    vector<double> macd_params{macd_strat.grid_search(10, 24, 24, 36, 9, 21, 100000, sharpe_t[i], 0.5)};
+    // uncomment 3 lines below to show the best portfolio simulation
+    // MACD_port.set_principal(100000);
+    // MACD_port.reset_params(macd_params[2], macd_params[3], macd_params[4]);
+    // MACD_port.calculate_portfolio(true);
+    print_macd_params(time_interval[i], macd_params);
+  }
 
   return 0;
 }

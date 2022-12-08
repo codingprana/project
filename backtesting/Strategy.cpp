@@ -20,6 +20,9 @@ Strategy::Strategy(string file_name, double prcpl = 100000)
 }
 
 void Strategy::read_data(string file_name) {
+  //clear data if already exist data in the object
+  if (close_price.empty() != true){close_price.clear();}
+  
   cout << "Key in the working directory: \n";
   string wkdir; // set the working directory where the data exists
   getline(cin, wkdir);

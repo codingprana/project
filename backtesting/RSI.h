@@ -10,18 +10,43 @@
 
 class RSI : public Strategy {
 public:
-  RSI(std::string, double, double, double, double, double, unsigned int);
+  // ctor & dtor
+  RSI();
+  RSI(double);
+  RSI(std::string);
+  RSI(std::string, double, double, double, int,
+      double, double, double, double, unsigned int);
   virtual ~RSI() = default;
+
+  // getters
+  double get_buySign() const;
+  double get_sellSign() const;
+  double get_buyStopSign() const;
+  double get_sellStopSign() const;
+  unsigned int get_rsi_period() const;
+
+  // setters
+  void set_buySign(double);
+  void set_sellSign(double);
+  void set_buyStopSign(double);
+  void set_sellStopSign(double);
+  void set_rsi_period(unsigned int);
+  void set_RSI_params(double, double, double, double, unsigned int);
+
+  // for RSI strategy trading
   double calculate_rsi(unsigned int) const;
-  virtual Signal signal(double) const;
+  Signal signal(double) const; //get trading signal
   virtual void update_portfolio(int, bool) override;
-  virtual void display(int, double, Signal) const;
-  virtual void print_title() override;
   virtual void calculate_portfolio(bool) override;
-  virtual void set_params(double, double, double, double, unsigned int);
+
+  // output
+  virtual void print_title() override;
+  void display(int, double, Signal) const;
+
+  // for finding optimal strategy
   virtual std::vector<double> grid_search(double, double, double);
 
-protected:
+private:
   double buySign{0}, sellSign{0}, buyStopSign{0}, sellStopSign{0};
   unsigned int rsi_period{14};
 };

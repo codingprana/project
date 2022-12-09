@@ -7,41 +7,59 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-//Abstract class
+// Abstract class
 class Strategy {
 public:
   enum class Signal{HOLD, BUY, SELL};
   friend std::ostream& operator<<(std::ostream& os, const Signal &s);
   
-  //constructor
-  Strategy(std::string, double);
+  // ctor & dtor
+  Strategy();
+  Strategy(double);
+  Strategy(std::string);
+  Strategy(std::string, double, double, double, int);
   virtual ~Strategy() = default;
 
+  // read and store the close price 
   void read_data(std::string);
-  void print_close_price() const;
-  int get_data_size() const;
+  void read_data(std::string, std::string);
+  
+  // getters
   double get_sharpe_ratio() const;
+  double get_principal() const;
+  double get_curr_profit() const;
+  int get_curr_position() const;
+  int get_data_size() const;
 
-  //
-  void stop(int);
-  void buy(int);
-  void sell(int);
-  virtual void update_portfolio(int, bool) = 0; //pure vitual
-  virtual void print_title() = 0; //pure vitual
-  virtual void calculate_portfolio(bool) = 0; //pure vitual
+  // setters
   void set_sharpe_ratio(double);
   void set_principal(double);
   void set_curr_profit(double);
   void set_curr_position(int);
+  void set_params(double, double, double, int);
+  virtual void reset_strategy(double);
 
+  // for trading
+  void stop(int);
+  void buy(int);
+  void sell(int);
+  void calculate_sharpe_ratio(double);
+
+  // pure virtual functions
+  virtual void update_portfolio(int, bool) = 0;
+  virtual void calculate_portfolio(bool) = 0;
+  virtual void print_title() = 0;
 
 protected:
-  double principal{0};
-  double curr_profit{0}; // this will be total profit in the end
-  int curr_position{0}; //declared int for pursose as we only want whole number
-  std::vector<double> close_price;
-  std::vector<double> daily_profit;
-  double sharpe_ratio{0};
+  std::vector<double> close_price; // store the close price
+  std::vector<double> period_profit; // strategy profit in each period: 
+                                     // every day, 10-mins, 5-mins, or 1-min
+
+private:
+  int curr_position; // declared int for pursose as we only want whole number
+  double principal;
+  double curr_profit; // this will be total profit in the end
+  double sharpe_ratio;
 };
 
 #endif

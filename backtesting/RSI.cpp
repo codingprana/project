@@ -5,12 +5,79 @@
 
 using namespace std;
 
-//constructor
-RSI::RSI(string file_name, double prcpl, double buy, double sell, double buyStop, 
-         double sellStop, unsigned int period) : Strategy(file_name, prcpl) {
-    set_params(buy, sell, buyStop, sellStop, period);
+// ctor
+RSI::RSI() : Strategy() {
+  set_RSI_params(0, 0, 0, 0, 14);
 }
 
+RSI::RSI(double prcpl) : Strategy(prcpl) {
+  set_RSI_params(0, 0, 0, 0, 14);
+}
+
+RSI::RSI(string file_name) : Strategy(file_name) {
+  set_RSI_params(0, 0, 0, 0, 14);
+}
+
+RSI::RSI(string file_name, double sharp_r, double prcpl, double profit, int pos, 
+         double buy, double sell, double buyStop, double sellStop, unsigned int period)
+         // explicitly call base-class ctor
+         : Strategy(file_name, sharp_r, prcpl, profit, pos) {
+    set_RSI_params(buy, sell, buyStop, sellStop, period);
+}
+
+
+// getters
+double RSI::get_buySign() const {
+  return buySign;
+}
+
+double RSI::get_sellSign() const {
+  return sellSign;
+}
+
+double RSI::get_buyStopSign() const {
+  return buyStopSign;
+}
+
+double RSI::get_sellStopSign() const {
+  return sellStopSign;
+}
+
+unsigned int RSI::get_rsi_period() const {
+  return rsi_period;
+}
+
+
+// setters
+void RSI::set_buySign(double signal) {
+  buySign = signal;
+}
+
+void RSI::set_sellSign(double signal) {
+  sellSign = signal;
+}
+
+void RSI::set_buyStopSign(double signal) {
+  buyStopSign = signal;
+}
+
+void RSI::set_sellStopSign(double signal) {
+  sellStopSign = signal;
+}
+
+void RSI::set_rsi_period(unsigned int period) {
+  rsi_period = period;
+}
+
+void RSI::set_RSI_params (double buy, double sell, double buyStop, 
+                      double sellStop, unsigned int period) {
+  // set parameters for RSI strategy
+  set_buySign(buy);
+  set_sellSign(sell);
+  set_buyStopSign(buyStop);
+  set_sellStopSign(sellStop);
+  set_rsi_period(period);
+}
 
 double RSI::calculate_rsi(unsigned int timeTick = 0) const {
   static double rsi{0}, ave_gain{0}, ave_loss{0};
@@ -57,6 +124,7 @@ double RSI::calculate_rsi(unsigned int timeTick = 0) const {
 }
 
 RSI::Signal RSI::signal(double rsi) const {
+  int curr_position = get_curr_position();
   //base base when rsi is out of range (not enough data point)
   if (rsi < 0) {return Signal::HOLD;}
   //current position is 0
@@ -80,11 +148,11 @@ RSI::Signal RSI::signal(double rsi) const {
 }
 
 void RSI::update_portfolio(int timeTick, bool show = false) {
-  // double curr_principal = principal;
-  double tempPortfolioValue{principal + curr_position * close_price[max(0, timeTick - 1)]};
+  double tempPortfolioValue{get_principal() + get_curr_position() * close_price[max(0, timeTick - 1)]};
   double curr_rsi = calculate_rsi(timeTick);
   Strategy::Signal signal = RSI::signal(curr_rsi);
 
+  int curr_position = get_curr_position();
   //update position
   if (curr_position == 0){
     if (signal == Signal::BUY){buy(timeTick);}
@@ -99,18 +167,18 @@ void RSI::update_portfolio(int timeTick, bool show = false) {
     else if (signal == Signal::HOLD){stop(timeTick);}
   }
 
-  double newPortfolioValue{principal + curr_position * close_price[timeTick]};
-  daily_profit.push_back(newPortfolioValue - tempPortfolioValue);
-  curr_profit += daily_profit[timeTick];
+  double newPortfolioValue{get_principal() + get_curr_position() * close_price[timeTick]};
+  period_profit.push_back(newPortfolioValue - tempPortfolioValue);
+  set_curr_profit(get_curr_profit() + period_profit[timeTick]);
   
   if (show) display(timeTick, curr_rsi, signal);
 }
 
 void RSI::display(int timeTick, double curr_rsi, Signal signal) const{
   cout << setw(14) << timeTick << setw(14) << close_price[timeTick]
-       << setw(14) << curr_rsi << setw(14) << signal << setw(14) << principal 
-       << setw(14) << curr_position << setw(14) << daily_profit[timeTick] 
-       << setw(14) << curr_profit << endl;
+       << setw(14) << curr_rsi << setw(14) << signal << setw(14) << get_principal()
+       << setw(14) << get_curr_position() << setw(14) << period_profit[timeTick] 
+       << setw(14) << get_curr_profit() << endl;
 }
 
 void RSI::print_title(){
@@ -127,36 +195,27 @@ void RSI::calculate_portfolio(bool show = false){
   }
 }
 
-void RSI::set_params (double buy, double sell, double buyStop, 
-                      double sellStop, unsigned int period) {
-  rsi_period = period;
-  buySign = buy;
-  sellSign = sell;
-  buyStopSign = buyStop;
-  sellStopSign = sellStop;
-  set_curr_profit(0);
-  set_curr_position(0);
-  daily_profit.clear();
-}
-
+// return the optimal parameters for backtesting
 vector<double> RSI::grid_search(double prcpl = 100000.0, 
                                 double t = 365.0, double threshold = 2.0) {
   vector<vector<double>> v;
 
+  int end = get_data_size();
+  // buy grid search range: 20 ~ 40 
   for (int buy{20}; buy <= 40; ++buy) {
+    // sell grid search range: 60 ~ 80
     for (int sell{60}; sell <= 80; ++sell) {
+      // period grid search range: 14 ~ 21
       for (int period{14}; period <= 21; ++period) {
-        set_principal(prcpl);
-        set_params(buy, sell, 50, 50, period);
-        daily_profit.clear();
-        for (int i{0}, end{this->get_data_size()}; i < end; ++i){
-          this->update_portfolio(i, false);
+        reset_strategy(prcpl);
+        set_RSI_params(buy, sell, 50, 50, period);
+        for (int i{0}; i < end; ++i){
+          update_portfolio(i, false);
         }
-        this->set_sharpe_ratio(t); 
-        // daily: 365, 10-min: 365*24*6, 5-min: 365*24*14, 1-min: 365*24*60
+        calculate_sharpe_ratio(t); 
 
-        if (this->get_sharpe_ratio() >= threshold) {
-          v.push_back({curr_profit, this->get_sharpe_ratio(), 
+        if (get_sharpe_ratio() >= threshold) {
+          v.push_back({get_curr_profit(), get_sharpe_ratio(), 
                        static_cast<double>(period), 
                        static_cast<double>(buy), 
                        static_cast<double>(sell), 
@@ -165,6 +224,6 @@ vector<double> RSI::grid_search(double prcpl = 100000.0,
       }
     }
   }
-    sort(v.begin(), v.end(), greater());
-    return v[0];
+  sort(v.begin(), v.end(), greater());
+  return v[0];
 }

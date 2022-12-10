@@ -23,6 +23,7 @@ Strategy::Strategy(double prcpl) {
 }
 
 Strategy::Strategy(string file_name) {
+  read_data(file_name);
   set_params(0, 100000, 0, 0);
 }
 

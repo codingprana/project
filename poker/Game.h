@@ -13,15 +13,12 @@
 class Game {
 public:
     explicit Game(unsigned int = 6);
-    void resetPlayerHoleCards();
-    void resetPlayerHands();
-    void build_a_deck();
     void setPlayerNumber(unsigned int);
+    void build_a_deck();
     void new_game();
     void updatePlayerHands();// 
 
     unsigned int getPlayerNumber() const;
-    std::vector<std::vector<unsigned int>> getPlayerHands() const;
     void info() const;
     void printDeck() const;
 
@@ -43,6 +40,8 @@ private:
     static std::map<unsigned int, char> toPokerValue;
 
     // utility functions
+    void resetPlayerHoleCards();
+    void resetPlayerHands();
     unsigned int getSuitFromDeck(unsigned int n) const;
     unsigned int getValueFromDeck(unsigned int n) const;
     void shuffle_cards();

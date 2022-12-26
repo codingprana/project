@@ -40,22 +40,10 @@ Game::Game(unsigned int n) {
     new_game();
 }
 
-void Game::resetPlayerHoleCards() {
-    if (!playerHoleCards.empty()) {
-        playerHoleCards.clear();
-    }
-    for (int i{0}; i < getPlayerNumber(); ++i) {
-        playerHoleCards.push_back({Card(), Card()});
-    }
-}
-
-void Game::resetPlayerHands() {
-    if (!playerHands.empty()) {
-        playerHands.clear();
-    }
-    for (int i{0}; i < getPlayerNumber(); ++i) {
-        playerHands.push_back({1, 0, 0, 0, 0, 0});
-    }
+void Game::setPlayerNumber(unsigned int n) {
+    playerNumber = n;
+    resetPlayerHoleCards();
+    resetPlayerHands();
 }
 
 void Game::build_a_deck() {
@@ -73,24 +61,98 @@ void Game::build_a_deck() {
     }
 }
 
-unsigned int Game::getSuitFromDeck(unsigned int n) const {
-    return 1 + n / 13;
-}
-
-
-unsigned int Game::getValueFromDeck(unsigned int n) const {
-    return 1 + n % 13;
-}
-
-void Game::setPlayerNumber(unsigned int n) {
-    playerNumber = n;
-    resetPlayerHoleCards();
-    resetPlayerHands();
-}
-
 void Game::new_game() {
     shuffle_cards();
     deal_cards();
+}
+
+void Game::updatePlayerHands() {
+    for (unsigned int i{0}; i < getPlayerNumber(); ++i) {
+        playerHands[i] = player_hand(i);
+    }
+}
+
+unsigned int Game::getPlayerNumber() const {
+    return playerNumber;
+}
+
+void Game::info() const {
+    cout << "Community Cards: \n";
+    for (const auto& card: communityCards) {
+        cout << card.toString() << " ";
+    }
+    cout << endl << endl;
+
+    cout << "Player Hole Cards: \n";
+    int count{1};
+    for (const auto& hole_cards: playerHoleCards) {
+        cout << "Player-" << count << ": ";
+        cout << hole_cards[0].toString() << " "
+             << hole_cards[1].toString() << "\n";
+        ++count;
+    }
+    cout << endl;
+}
+
+void Game::printDeck() const {
+    cout << "The whole Deck: \n";
+    int count{1};
+    for (const auto& card : deck) {
+        cout << count << ": " << card << "\n";
+        ++count;
+    }
+    cout << endl;
+}
+
+void Game::test_1() {
+    cout << "Test 1: print out cards' information \n" << endl;
+    srand(time(0));
+    int count{0};
+    while(++count && count <= 20) {
+        cout << "Game " << count << endl;
+        setPlayerNumber(1 + rand()%9);
+        new_game();
+        info();
+        printDeck();
+    }
+}
+
+void Game::test_2() {
+    cout << "Test 2: print out each player's hand \n" << endl;
+    new_game();
+    updatePlayerHands();
+    info();
+    for (unsigned int i{0}; i < getPlayerNumber(); ++i) {
+        cout << "\nPlayer-" << i+1 << ": ";
+
+        cout << setw(15) << hand_rankings[playerHands[i][0]] << " ";
+        for (unsigned int j{1}; j < playerHands[i].size(); ++j) {
+            cout << setw(2) << toPokerValue[playerHands[i][j]] << " ";
+            //cout << setw(2) << valuesRightShift[Hands[i][j]] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+
+
+void Game::resetPlayerHoleCards() {
+    if (!playerHoleCards.empty()) {
+        playerHoleCards.clear();
+    }
+    for (int i{0}; i < getPlayerNumber(); ++i) {
+        playerHoleCards.push_back({Card(), Card()});
+    }
+}
+
+void Game::resetPlayerHands() {
+    if (!playerHands.empty()) {
+        playerHands.clear();
+    }
+    for (int i{0}; i < getPlayerNumber(); ++i) {
+        playerHands.push_back({1, 0, 0, 0, 0, 0});
+    }
 }
 
 void Game::shuffle_cards() {
@@ -130,62 +192,12 @@ void Game::deal_cards() {
     }
 }
 
-
-
-unsigned int Game::getPlayerNumber() const {
-    return playerNumber;
+unsigned int Game::getSuitFromDeck(unsigned int n) const {
+    return 1 + n / 13;
 }
 
-vector<vector<unsigned int>> Game::getPlayerHands() const {
-    return playerHands;
-}
-
-void Game::info() const {
-    cout << "Community Cards: \n";
-    for (const auto& card: communityCards) {
-        cout << card.toString() << " ";
-    }
-    cout << endl << endl;
-
-    cout << "Player Hole Cards: \n";
-    int count{1};
-    for (const auto& hole_cards: playerHoleCards) {
-        cout << "Player-" << count << ": ";
-        cout << hole_cards[0].toString() << " "
-             << hole_cards[1].toString() << "\n";
-        ++count;
-    }
-    cout << endl;
-}
-
-void Game::printDeck() const {
-    cout << "The whole Deck: \n";
-    int count{1};
-    for (const auto& card : deck) {
-        cout << count << ": " << card << "\n";
-        ++count;
-    }
-    cout << endl;
-}
-
-
-void Game::test_1() {
-    cout << "Test 1: \n" << endl;
-    srand(time(0));
-    int count{0};
-    while(++count && count <= 20) {
-        cout << "Game " << count << endl;
-        setPlayerNumber(1 + rand()%9);
-        new_game();
-        info();
-        printDeck();
-    }
-}
-
-void Game::updatePlayerHands() {
-    for (unsigned int i{0}; i < getPlayerNumber(); ++i) {
-        playerHands[i] = player_hand(i);
-    }
+unsigned int Game::getValueFromDeck(unsigned int n) const {
+    return 1 + n % 13;
 }
 
 vector<unsigned int> Game::player_hand(unsigned int i) const { // i(player's index): 0-> 1st, 1-> 2nd, ...
@@ -368,24 +380,6 @@ void Game::checkNoStraight(vector<unsigned int>& values, vector<unsigned int>& h
         hand.push_back((--m.end())->first);
         return;
     }    
-}
-
-void Game::test_2() {
-    cout << "Test 2: print out each player's hand \n" << endl;
-    new_game();
-    updatePlayerHands();
-    info();
-    for (unsigned int i{0}; i < getPlayerNumber(); ++i) {
-        cout << "\nPlayer-" << i+1 << ": ";
-
-        cout << setw(15) << hand_rankings[playerHands[i][0]] << " ";
-        for (unsigned int j{1}; j < playerHands[i].size(); ++j) {
-            cout << setw(2) << toPokerValue[playerHands[i][j]] << " ";
-            //cout << setw(2) << valuesRightShift[Hands[i][j]] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
 }
 
 pair<unsigned int, unsigned int> Game::getMaxCount(map<unsigned int, unsigned int>& m) const {

@@ -318,68 +318,66 @@ void Game::checkNoStraight(vector<unsigned int>& values, vector<unsigned int>& h
                                                         //p.second: max count
 
     // Classification
-    // High Card (default hand[0] = 1)
-    if (1 == p.second) {
-        for (int i{0}; i < 5; ++i) {
-            hand.push_back(values[i]);
-        }
-        return;
-    }
-    // append max count value (count >= 2)
-    for (int i{0}; i < p.second; ++i) {
-        hand.push_back(p.first);
-    }
-    // one pair(2), two pairs(3)
-    if (2 == p.second) {
-        m.erase(p.first);
-        p = getMaxCount(m);
-        if (1 == p.second) {
-            //one pair(2)
-            hand[0] = 2;
-            hand.push_back((--m.end())->first);
-            for (int i{0}; i < 2; ++i) {
-                m.erase((--m.end())->first);
-                hand.push_back((--m.end())->first);
+    switch (p.second) {
+        case 1: // High Card(1)
+            for (int i{0}; i < 5; ++i) {
+                hand.push_back(values[i]);
             }
-            return;
-        }
-        else {
+            break;
+        
+        case 2:
+            hand.push_back(p.first);
+            hand.push_back(p.first);
+            m.erase(p.first);
+            p = getMaxCount(m);
+            if (1 == p.second) {
+                //one pair(2)
+                hand[0] = 2;
+                hand.push_back((--m.end())->first);
+                for (int i{0}; i < 2; ++i) {
+                    m.erase((--m.end())->first);
+                    hand.push_back((--m.end())->first);
+                }
+                break;
+            }
             // two pairs(3)
             hand[0] = 3;
             hand.push_back(p.first);
             hand.push_back(p.first);
             m.erase(p.first);
             hand.push_back((--m.end())->first);
-            return;
-        }
-    }
-    // trips(4), full-house(7)
-    if (3 == p.second) {
-        m.erase(p.first);
-        p = getMaxCount(m);
-        if (1 == p.second) {
-            // trips(4)
-            hand[0] = 4;
-            hand.push_back((--m.end())->first);
-            m.erase((--m.end())->first);
-            hand.push_back((--m.end())->first);
-            return;
-        }
-        else {
+            break;
+        
+        case 3:
+            hand.push_back(p.first);
+            hand.push_back(p.first);
+            hand.push_back(p.first);
+            m.erase(p.first);
+            p = getMaxCount(m);
+            if (1 == p.second) {
+                // trips(4)
+                hand[0] = 4;
+                hand.push_back((--m.end())->first);
+                m.erase((--m.end())->first);
+                hand.push_back((--m.end())->first);
+                break;
+            }
             // full-house(7)
             hand[0] = 7;
             hand.push_back(p.first);
             hand.push_back(p.first);
-            return;
-        }
+            break;
+        
+        case 4:
+            hand.push_back(p.first);
+            hand.push_back(p.first);
+            hand.push_back(p.first);
+            hand.push_back(p.first);
+            hand[0] = 8;
+            m.erase(p.first);
+            hand.push_back((--m.end())->first);
+            break; 
     }
-    // Quads(8)
-    if (4 == p.second) {
-        hand[0] = 8;
-        m.erase(p.first);
-        hand.push_back((--m.end())->first);
-        return;
-    }    
 }
 
 pair<unsigned int, unsigned int> Game::getMaxCount(map<unsigned int, unsigned int>& m) const {

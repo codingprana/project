@@ -6,11 +6,11 @@ using namespace std;
 
 int main() {
     // random dealing testing
-    Game game(23);
+    Game game(6);
     //game.test_1();
     Player p1(Card(0, 0), Card(0, 0));
     //p1.test_2();
-    int goal{100000}, count{goal};
+    int goal{20000}, count{goal};
     while(count--){
         cout << "#" << goal - count << "  "; 
         game.test_2();
